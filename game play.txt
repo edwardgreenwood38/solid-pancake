@@ -1,0 +1,14 @@
+solid-pancake game play
+
+
+basic turn:
+add new unit(s)
+***heal units
+loop move (all units)
+    unit to move
+    select adjacent location to move to or skip
+    *if combat > resolve combat
+        if win move unit
+    else move unit
+    *check if won
+end

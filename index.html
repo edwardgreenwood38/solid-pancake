@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+
+        <style>
+            canvas {
+                border: 1px solid black;
+                background-color: #f1f1f1;
+            }
+            body {
+                background-color: #666;
+            }
+        </style>
+    </head>
+    <body onload="startGame()">
+        <!--<header>
+            <h1>Fantasy Conquest</h1>
+        </header> -->
+
+        <script>
+            // var
+            var mapGrids = [];
+            var mapRows = 6;
+            var mapCols = 6;
+            var gridStartX = 5;
+            var gridStartY = 5;
+            var gridName;
+
+
+            // create map grid objects
+            for (var c = 0; c < mapCols; c++){
+                mapGrids[c] = [];
+                for (var r = 0; r < mapRows; r++) {
+                    gridName = c + "," + r;
+                    mapGrids[c][r] = new component(gridStartX, gridStartY, "#333", 75, 75, gridName);
+                    gridStartY += 75;
+                }
+                gridStartX += 75;
+                gridStartY = 5;
+            }
+
+
+            function startGame() {
+                gameArea.start();
+            }
+
+            var gameArea = {
+                canvas: document.createElement("canvas"),
+                start: function () {
+                    this.canvas.width = 800;
+                    this.canvas.height = 600;
+                    this.context = this.canvas.getContext("2d");
+                    document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+                    this.interval = setInterval(updateGameArea, 200);
+                },
+                clear: function () {
+                    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                }
+            }
+
+            // draw game
+            function component(x, y, color, width, height, name) {
+                this.width = width;
+                this.height = height;
+                this.x = x;
+                this.y = y;
+                this.name = name;
+                //alert(name);
+                
+                
+                this.update = function() {
+                    ctx = gameArea.context;
+                    ctx.beginPath();
+                    ctx.lineWidth = "2";
+                    ctx.strokeStyle = color; 
+                    ctx.rect(this.x, this.y, this.width, this.height);
+                    ctx.stroke();
+                    ctx.closePath();
+
+                    ctx.beginPath();
+                    ctx.font = "18px Consolas";
+                    ctx.fillStyle = color;
+                    ctx.fillText(this.name, this.x + 20, this.y + 35);  
+                    ctx.closePath();              
+                }
+            }
+
+            function updateGameArea() {
+                //gameArea.clear();
+                for (var i = 0; i < mapGrids.length; i++) {
+                    for (c = 0; c < mapCols; c++) {
+                        for (r = 0; r < mapRows; r++) {
+                            mapGrids[c][r].update();
+                        }
+                    }
+                }
+
+            }
+        </script>
+    </body>
+</html>

@@ -21,27 +21,32 @@
         <script>
             // var
             var mapGrids = [];
+            var mapGridX, mapGridY;
             var mapRows = 6;
             var mapCols = 6;
             var gridStartX = 5;
             var gridStartY = 5;
             var gridName;
+            var gridClick;
 
-
-            // create map grid objects
-            for (var c = 0; c < mapCols; c++){
-                mapGrids[c] = [];
-                for (var r = 0; r < mapRows; r++) {
-                    gridName = c + "," + r;
-                    mapGrids[c][r] = new component(gridStartX, gridStartY, "#333", 75, 75, gridName);
-                    gridStartY += 75;
-                }
-                gridStartX += 75;
-                gridStartY = 5;
-            }
+            var units = [];
 
 
             function startGame() {
+                // create map grid objects
+                for (var c = 0; c < mapCols; c++){
+                    mapGrids[c] = [];
+                    for (var r = 0; r < mapRows; r++) {
+                        gridName = c + "," + r;
+                        mapGrids[c][r] = new component(gridStartX, gridStartY, "#333", 75, 75, gridName, "#f1f1f1", false);
+                        gridStartY += 75;
+                    }
+                    gridStartX += 75;
+                    gridStartY = 5;
+                }
+
+                // start units
+                units[0] = new unit(0, 0, "green");
                 gameArea.start();
             }
 
@@ -53,6 +58,19 @@
                     this.context = this.canvas.getContext("2d");
                     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
                     this.interval = setInterval(updateGameArea, 200);
+
+                    /*window.addEventListener('onclick', function(e) {
+                        gameArea.x = e.touches[0].screenX;
+                        gameArea.y = e.touches[0].screenY;
+                        gridClick = true;
+                    }) */
+
+                    window.addEventListener('mousedown', function(e) { 
+                        gameArea.x = e.clientX; //pageX;
+                        gameArea.y = e.clientY; //pageY;
+                        gridClick = true;
+                        //alert("x: " + gameArea.x + "  y: " + gameArea.y);
+                    }) 
                 },
                 clear: function () {
                     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -60,12 +78,15 @@
             }
 
             // draw game
-            function component(x, y, color, width, height, name) {
+            function component(x, y, color, width, height, name, highLight, selected) {
                 this.width = width;
                 this.height = height;
                 this.x = x;
                 this.y = y;
                 this.name = name;
+                this.color = color;
+                this.highLight = highLight;
+                this.selected = selected;
                 //alert(name);
                 
                 
@@ -73,21 +94,30 @@
                     ctx = gameArea.context;
                     ctx.beginPath();
                     ctx.lineWidth = "2";
-                    ctx.strokeStyle = color; 
+                    ctx.strokeStyle = this.color; 
                     ctx.rect(this.x, this.y, this.width, this.height);
                     ctx.stroke();
                     ctx.closePath();
 
                     ctx.beginPath();
                     ctx.font = "18px Consolas";
-                    ctx.fillStyle = color;
+                    ctx.fillStyle = this.color;
                     ctx.fillText(this.name, this.x + 20, this.y + 35);  
                     ctx.closePath();              
                 }
             }
 
+
+            // unit creation
+            function unit(x, y, owner) {
+                this.locX = x;
+                this.locY = y;
+                this.owner = owner;
+            }
+
+
             function updateGameArea() {
-                //gameArea.clear();
+                gameArea.clear();
                 for (var i = 0; i < mapGrids.length; i++) {
                     for (c = 0; c < mapCols; c++) {
                         for (r = 0; r < mapRows; r++) {
@@ -95,8 +125,45 @@
                         }
                     }
                 }
+                
+                // click check
+                if (gridClick) {
+                    document.getElementById("loc").innerHTML = "x: " + gameArea.x + "  y: " + gameArea.y;
 
+                    mapGridX = Math.floor((gameArea.x - 15) / 75);
+                    mapGridY = Math.floor((gameArea.y - 15) / 75);
+
+                    if (mapGrids[mapGridX][mapGridY].selected == false) {
+                        document.getElementById("grid").innerHTML = "color before: " + mapGrids[mapGridX][mapGridY].color + "<br>";
+
+                        mapGrids[mapGridX][mapGridY].color = "#aa0000";
+
+                        /* document.getElementById("grid").innerHTML += "Grid box: " + mapGridX + "," + mapGridY + "<br>mapGrid x: " + mapGrids[mapGridX][mapGridY].x + "<br>mapGrid y: " + mapGrids[mapGridX][mapGridY].y + "<br>mapGrid color: " + mapGrids[mapGridX][mapGridY].color; */
+                        
+                        mapGrids[mapGridX][mapGridY].update();
+                        mapGrids[mapGridX][mapGridY].selected = true;
+                        gridClick = false;
+                    }
+                    else {
+                        mapGrids[mapGridX][mapGridY].color = "#333";
+                        mapGrids[mapGridX][mapGridY].selected = false;
+                        gridClick = false;
+                    }   
+                }
+
+                // units
+                if (units.length > 0) {
+                    for (var u = 0; u < units.length; u++) {
+                        
+                    }
+                }
             }
         </script>
+
+        <p style="color: #e1e1e1;">Grid click <span id="loc"></span>
+            <br>
+            <span id="grid"> </span>
+        </p>
+
     </body>
 </html>

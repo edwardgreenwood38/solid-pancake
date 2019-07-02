@@ -38,7 +38,7 @@
                     mapGrids[c] = [];
                     for (var r = 0; r < mapRows; r++) {
                         gridName = c + "," + r;
-                        mapGrids[c][r] = new component(gridStartX, gridStartY, "#333", 75, 75, gridName, "#f1f1f1", false);
+                        mapGrids[c][r] = new component(gridStartX, gridStartY, "#333", 75, 75, gridName, "#f1f1f1", false, "grid");
                         gridStartY += 75;
                     }
                     gridStartX += 75;
@@ -46,7 +46,8 @@
                 }
 
                 // start units
-                units[0] = new unit(0, 0, "green");
+                units[0] = new component(2, 5, "#00CC00", 0, 0, "green", 0, false, "unit");
+                units[1] = new component(5, 3, "#0000CC", 0, 0, "blue", 0, false, "unit");
                 gameArea.start();
             }
 
@@ -78,7 +79,7 @@
             }
 
             // draw game
-            function component(x, y, color, width, height, name, highLight, selected) {
+            function component(x, y, color, width, height, name, highLight, selected, type) {
                 this.width = width;
                 this.height = height;
                 this.x = x;
@@ -87,33 +88,46 @@
                 this.color = color;
                 this.highLight = highLight;
                 this.selected = selected;
+                this.type = type;
                 //alert(name);
                 
                 
                 this.update = function() {
                     ctx = gameArea.context;
-                    ctx.beginPath();
-                    ctx.lineWidth = "2";
-                    ctx.strokeStyle = this.color; 
-                    ctx.rect(this.x, this.y, this.width, this.height);
-                    ctx.stroke();
-                    ctx.closePath();
 
-                    ctx.beginPath();
-                    ctx.font = "18px Consolas";
-                    ctx.fillStyle = this.color;
-                    ctx.fillText(this.name, this.x + 20, this.y + 35);  
-                    ctx.closePath();              
+                    if (this.type == "grid") {
+                        ctx.beginPath();
+                        ctx.lineWidth = "2";
+                        ctx.strokeStyle = this.color; 
+                        ctx.rect(this.x, this.y, this.width, this.height);
+                        ctx.stroke();
+                        ctx.closePath();
+
+                        // to show grid location. can comment out later
+                        ctx.beginPath();
+                        ctx.font = "18px Consolas";
+                        ctx.fillStyle = this.color;
+                        ctx.fillText(this.name, this.x + 20, this.y + 35);  
+                        ctx.closePath(); 
+                    }
+                    else if (this.type == "unit") {
+                        ctx.beginPath();
+                        ctx.font = "bold 18px Consolas";
+                        ctx.fillStyle = this.color;
+                        ctx.fillText("1", (this.x * 75) + 35, (this.y * 75) + 60);
+                        ctx.closePath();
+
+                        // show owner color
+                        ctx.beginPath();
+                        ctx.lineWidth = "2";
+                        ctx.strokeStyle = this.color;
+                        ctx.rect((this.x * 75) + 13, (this.y * 75) + 13, 60, 60);
+                        ctx.stroke();
+                        ctx.closePath();
+                    }             
                 }
             }
 
-
-            // unit creation
-            function unit(x, y, owner) {
-                this.locX = x;
-                this.locY = y;
-                this.owner = owner;
-            }
 
 
             function updateGameArea() {
@@ -154,7 +168,7 @@
                 // units
                 if (units.length > 0) {
                     for (var u = 0; u < units.length; u++) {
-                        
+                        units[u].update();
                     }
                 }
             }
